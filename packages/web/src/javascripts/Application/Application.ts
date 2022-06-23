@@ -11,7 +11,7 @@ import {
   DeinitSource,
   Platform,
   SNApplication,
-  NoteGroupController,
+  ItemGroupController,
   removeFromArray,
   IconsController,
   DesktopDeviceInterface,
@@ -26,6 +26,7 @@ import { makeObservable, observable } from 'mobx'
 import { PanelResizedData } from '@/Types/PanelResizedData'
 import { WebAppEvent } from './WebAppEvent'
 import { isDesktopApplication } from '@/Utils'
+import { storage, StorageKey } from '@/Services/LocalStorage'
 
 type WebServices = {
   viewControllerManager: ViewControllerManager
@@ -41,7 +42,7 @@ export type WebEventObserver = (event: WebAppEvent, data?: unknown) => void
 export class WebApplication extends SNApplication {
   private webServices!: WebServices
   private webEventObservers: WebEventObserver[] = []
-  public noteControllerGroup: NoteGroupController
+  public itemControllerGroup: ItemGroupController
   public iconsController: IconsController
   private onVisibilityChange: () => void
 
@@ -62,7 +63,7 @@ export class WebApplication extends SNApplication {
       defaultHost: defaultSyncServerHost,
       appVersion: deviceInterface.appVersion,
       webSocketUrl: webSocketUrl,
-      supportsFileNavigation: window.enabledUnfinishedFeatures || false,
+      supportsFileNavigation: storage.get(StorageKey.FilesNavigationEnabled) || false,
     })
 
     makeObservable(this, {
@@ -70,7 +71,7 @@ export class WebApplication extends SNApplication {
     })
 
     deviceInterface.setApplication(this)
-    this.noteControllerGroup = new NoteGroupController(this)
+    this.itemControllerGroup = new ItemGroupController(this)
     this.iconsController = new IconsController()
 
     this.onVisibilityChange = () => {
@@ -102,8 +103,8 @@ export class WebApplication extends SNApplication {
 
       this.webServices = {} as WebServices
 
-      this.noteControllerGroup.deinit()
-      ;(this.noteControllerGroup as unknown) = undefined
+      this.itemControllerGroup.deinit()
+      ;(this.itemControllerGroup as unknown) = undefined
 
       this.webEventObservers.length = 0
 

@@ -14,24 +14,19 @@ RUN apk add --update --no-cache \
 
 RUN addgroup -S $USERNAME -g $GID && adduser -D -S $USERNAME -G $USERNAME -u $UID
 
-WORKDIR /app/
+WORKDIR /app
 
 RUN chown -R $UID:$GID .
 
 USER $USERNAME
 
-COPY --chown=$UID:$GID package.json yarn.lock /app/
+COPY --chown=$UID:$GID . .
 
-COPY --chown=$UID:$GID packages/web/package.json /app/packages/web/package.json
-COPY --chown=$UID:$GID packages/web-server/package.json /app/packages/web-server/package.json
-
-RUN yarn install --pure-lockfile
-
-COPY --chown=$UID:$GID . /app
+RUN yarn install
 
 RUN gem install bundler
 
-RUN yarn build
+RUN yarn build:web-server
 
 EXPOSE 3000
 

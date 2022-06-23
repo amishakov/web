@@ -1,10 +1,13 @@
-name: Pull request
+name: General PR
 
 on:
   pull_request:
     branches:
       - develop
       - main
+    paths:
+      - '**/**'
+      - '!packages/components/**'
 
 jobs:
   test:
@@ -14,13 +17,13 @@ jobs:
         uses: actions/checkout@v2
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.6.8
       - name: Install dependencies
-        run: yarn install --pure-lockfile
-      - name: Build
-        run: yarn build
+        run: yarn install
       - name: ESLint
         run: yarn lint
+      - name: Build
+        run: yarn build:all
+      - name: Build Android
+        run: yarn android:bundle
       - name: Test
         run: yarn test

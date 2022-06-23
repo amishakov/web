@@ -2,8 +2,6 @@
 
 <div align="center">
 
-[![latest release version](https://img.shields.io/github/v/release/standardnotes/desktop)](https://github.com/standardnotes/desktop/releases)
-[![License](https://img.shields.io/github/license/standardnotes/desktop?color=blue)](https://github.com/standardnotes/desktop/blob/master/LICENSE)
 [![Slack](https://img.shields.io/badge/slack-standardnotes-CC2B5E.svg?style=flat&logo=slack)](https://standardnotes.com/slack)
 [![Twitter Follow](https://img.shields.io/badge/follow-%40standardnotes-blue.svg?style=flat&logo=twitter)](https://twitter.com/standardnotes)
 
@@ -16,7 +14,7 @@ This application makes use of the core JS/CSS/HTML code found in the [web repo](
 Make sure [Yarn](https://classic.yarnpkg.com/en/) is installed on your system.
 
 ```bash
-yarn setup
+yarn install
 yarn build:web # Or `yarn dev:web`
 yarn dev
 
@@ -68,14 +66,14 @@ Snap releases also require a working snapcraft / `snapd` installation.
 
 Building can then be done by running:
 
-- `yarn setup`
+- `yarn install`
 
 Followed by
 
-- `node scripts/desktop/build.mjs deb-arm64`
+- `node scripts/build.mjs deb-arm64`
 
 ## Installation
 
-On Linux, download the latest AppImage from the [Releases](https://github.com/standardnotes/desktop/releases/latest) page, and give it executable permission:
+On Linux, download the latest AppImage from the [Releases](https://github.com/standardnotes/app/releases/latest) page, and give it executable permission:
 
 `chmod u+x standard-notes*.AppImage`

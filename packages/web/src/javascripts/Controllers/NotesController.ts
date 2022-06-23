@@ -10,7 +10,6 @@ import { SelectedItemsController } from './SelectedItemsController'
 import { ItemListController } from './ItemList/ItemListController'
 import { NoteTagsController } from './NoteTagsController'
 import { NavigationController } from './Navigation/NavigationController'
-import { CrossControllerEvent } from './CrossControllerEvent'
 
 export class NotesController extends AbstractViewController {
   lastSelectedNote: SNNote | undefined
@@ -22,7 +21,6 @@ export class NotesController extends AbstractViewController {
   contextMenuClickLocation: { x: number; y: number } = { x: 0, y: 0 }
   contextMenuMaxHeight: number | 'auto' = 'auto'
   showProtectedWarning = false
-  showRevisionHistoryModal = false
   private itemListController!: ItemListController
 
   override deinit() {
@@ -49,7 +47,6 @@ export class NotesController extends AbstractViewController {
       contextMenuOpen: observable,
       contextMenuPosition: observable,
       showProtectedWarning: observable,
-      showRevisionHistoryModal: observable,
 
       selectedNotes: computed,
       firstSelectedNote: computed,
@@ -61,12 +58,11 @@ export class NotesController extends AbstractViewController {
       setContextMenuPosition: action,
       setContextMenuMaxHeight: action,
       setShowProtectedWarning: action,
-      setShowRevisionHistoryModal: action,
       unselectNotes: action,
     })
   }
 
-  public setServicestPostConstruction(itemListController: ItemListController) {
+  public setServicesPostConstruction(itemListController: ItemListController) {
     this.itemListController = itemListController
 
     this.disposers.push(
@@ -84,10 +80,10 @@ export class NotesController extends AbstractViewController {
         })
       }),
 
-      this.application.noteControllerGroup.addActiveControllerChangeObserver(() => {
-        const controllers = this.application.noteControllerGroup.noteControllers
+      this.application.itemControllerGroup.addActiveControllerChangeObserver(() => {
+        const controllers = this.application.itemControllerGroup.itemControllers
 
-        const activeNoteUuids = controllers.map((c) => c.note.uuid)
+        const activeNoteUuids = controllers.map((controller) => controller.item.uuid)
 
         const selectedUuids = this.getSelectedNotesList().map((n) => n.uuid)
 
@@ -118,32 +114,6 @@ export class NotesController extends AbstractViewController {
 
   get trashedNotesCount(): number {
     return this.application.items.trashedItems.length
-  }
-
-  async openNote(noteUuid: string): Promise<void> {
-    if (this.itemListController.activeControllerNote?.uuid === noteUuid) {
-      return
-    }
-
-    const note = this.application.items.findItem(noteUuid) as SNNote | undefined
-    if (!note) {
-      console.warn('Tried accessing a non-existant note of UUID ' + noteUuid)
-      return
-    }
-
-    await this.application.noteControllerGroup.createNoteController(noteUuid)
-
-    this.noteTagsController.reloadTagsForCurrentNote()
-
-    await this.publishEventSync(CrossControllerEvent.ActiveEditorChanged)
-  }
-
-  async createNewNoteController(title?: string) {
-    const selectedTag = this.navigationController.selected
-
-    const activeRegularTagUuid = selectedTag && selectedTag instanceof SNTag ? selectedTag.uuid : undefined
-
-    await this.application.noteControllerGroup.createNoteController(undefined, title, activeRegularTagUuid)
   }
 
   setContextMenuOpen(open: boolean): void {
@@ -393,9 +363,5 @@ export class NotesController extends AbstractViewController {
 
   private getSelectedNotesList(): SNNote[] {
     return Object.values(this.selectedNotes)
-  }
-
-  setShowRevisionHistoryModal(show: boolean): void {
-    this.showRevisionHistoryModal = show
   }
 }

@@ -3,12 +3,12 @@ import { BrowserWindow, dialog, shell } from 'electron'
 import electronLog from 'electron-log'
 import { autoUpdater } from 'electron-updater'
 import { action, autorun, computed, makeObservable, observable } from 'mobx'
-import { autoUpdatingAvailable } from './Types/Constants'
 import { MessageType } from '../../../test/TestIpcMessage'
 import { AppState } from '../../application'
 import { BackupsManagerInterface } from './Backups/BackupsManagerInterface'
 import { StoreKeys } from './Store'
 import { updates as str } from './Strings'
+import { autoUpdatingAvailable } from './Types/Constants'
 import { handleTestMessage } from './Utils/Testing'
 import { isTesting } from './Utils/Utils'
 
@@ -144,7 +144,7 @@ export function setupUpdates(window: BrowserWindow, appState: AppState, backupsM
 }
 
 export function openChangelog(state: UpdateState): void {
-  const url = 'https://github.com/standardnotes/desktop/releases'
+  const url = 'https://github.com/standardnotes/app/releases'
   if (state.latestVersion) {
     void shell.openExternal(`${url}/tag/v${state.latestVersion}`)
   } else {

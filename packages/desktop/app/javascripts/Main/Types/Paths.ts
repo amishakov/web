@@ -1,8 +1,8 @@
-import path from 'path'
-import index from '../../../index.html'
-import grantLinuxPasswordsAccess from '../../../grantLinuxPasswordsAccess.html'
 import decryptScript from 'decrypt/dist/decrypt.html'
 import { app } from 'electron'
+import path from 'path'
+import grantLinuxPasswordsAccess from '../../../grantLinuxPasswordsAccess.html'
+import index from '../../../index.html'
 
 function url(fileName: string): string {
   if ('APP_RELATIVE_PATH' in process.env) {
@@ -61,7 +61,7 @@ export const Paths = {
     return path.join(__dirname, 'javascripts/renderer/preload.js')
   },
   get components(): string {
-    return `${app.getAppPath()}/dist/web/components`
+    return `${app.getAppPath()}/dist/web/components/assets`
   },
   get grantLinuxPasswordsAccessJs(): string {
     return path.join(__dirname, 'javascripts/renderer/grantLinuxPasswordsAccess.js')

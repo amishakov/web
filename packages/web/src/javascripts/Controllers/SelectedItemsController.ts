@@ -12,7 +12,6 @@ import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 import { WebApplication } from '../Application/Application'
 import { AbstractViewController } from './Abstract/AbstractViewController'
 import { ItemListController } from './ItemList/ItemListController'
-import { NotesController } from './NotesController'
 
 type SelectedItems = Record<UuidString, ListableContentItem>
 
@@ -20,12 +19,10 @@ export class SelectedItemsController extends AbstractViewController {
   lastSelectedItem: ListableContentItem | undefined
   selectedItems: SelectedItems = {}
   private itemListController!: ItemListController
-  private notesController!: NotesController
 
   override deinit(): void {
     super.deinit()
     ;(this.itemListController as unknown) = undefined
-    ;(this.notesController as unknown) = undefined
   }
 
   constructor(application: WebApplication, eventBus: InternalEventBus) {
@@ -43,9 +40,8 @@ export class SelectedItemsController extends AbstractViewController {
     })
   }
 
-  public setServicestPostConstruction(itemListController: ItemListController, notesController: NotesController) {
+  public setServicesPostConstruction(itemListController: ItemListController) {
     this.itemListController = itemListController
-    this.notesController = notesController
 
     this.disposers.push(
       this.application.streamItems<SNNote | FileItem>(
@@ -109,11 +105,19 @@ export class SelectedItemsController extends AbstractViewController {
     this.selectedItems[item.uuid] = item
   }
 
-  private selectItemsRange = async (selectedItem: ListableContentItem): Promise<void> => {
+  private selectItemsRange = async ({
+    selectedItem,
+    startingIndex,
+    endingIndex,
+  }: {
+    selectedItem?: ListableContentItem
+    startingIndex?: number
+    endingIndex?: number
+  }): Promise<void> => {
     const items = this.itemListController.renderedItems
 
-    const lastSelectedItemIndex = items.findIndex((item) => item.uuid == this.lastSelectedItem?.uuid)
-    const selectedItemIndex = items.findIndex((item) => item.uuid == selectedItem.uuid)
+    const lastSelectedItemIndex = startingIndex ?? items.findIndex((item) => item.uuid == this.lastSelectedItem?.uuid)
+    const selectedItemIndex = endingIndex ?? items.findIndex((item) => item.uuid == selectedItem?.uuid)
 
     let itemsToSelect = []
     if (selectedItemIndex > lastSelectedItemIndex) {
@@ -155,6 +159,13 @@ export class SelectedItemsController extends AbstractViewController {
     this.lastSelectedItem = item
   }
 
+  selectAll = () => {
+    void this.selectItemsRange({
+      startingIndex: 0,
+      endingIndex: this.itemListController.listLength - 1,
+    })
+  }
+
   private deselectAll = (): void => {
     this.setSelectedItems({})
 
@@ -188,7 +199,7 @@ export class SelectedItemsController extends AbstractViewController {
         this.lastSelectedItem = item
       }
     } else if (userTriggered && hasShift) {
-      await this.selectItemsRange(item)
+      await this.selectItemsRange({ selectedItem: item })
     } else {
       const shouldSelectNote = hasMoreThanOneSelected || !this.selectedItems[uuid]
       if (shouldSelectNote && isAuthorizedForAccess) {
@@ -198,8 +209,11 @@ export class SelectedItemsController extends AbstractViewController {
 
     if (this.selectedItemsCount === 1) {
       const item = Object.values(this.selectedItems)[0]
+
       if (item.content_type === ContentType.Note) {
-        await this.notesController.openNote(item.uuid)
+        await this.itemListController.openNote(item.uuid)
+      } else if (item.content_type === ContentType.File) {
+        await this.itemListController.openFile(item.uuid)
       }
     }
 

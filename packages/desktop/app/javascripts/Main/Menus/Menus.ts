@@ -10,17 +10,17 @@ import {
   WebContents,
 } from 'electron'
 import { autorun } from 'mobx'
-import { autoUpdatingAvailable } from '../Types/Constants'
-import { isLinux, isMac } from '../Types/Platforms'
 import { Store, StoreKeys } from '../Store'
 import { appMenu as str, contextMenu } from '../Strings'
-import { handleTestMessage } from '../Utils/Testing'
 import { TrayManager } from '../TrayManager'
-import { SpellcheckerManager } from './../SpellcheckerManager'
-import { BackupsManagerInterface } from './../Backups/BackupsManagerInterface'
-import { MessageType } from './../../../../test/TestIpcMessage'
+import { autoUpdatingAvailable } from '../Types/Constants'
+import { isLinux, isMac } from '../Types/Platforms'
 import { checkForUpdate, openChangelog, showUpdateInstallationDialog } from '../UpdateManager'
+import { handleTestMessage } from '../Utils/Testing'
 import { isDev, isTesting } from '../Utils/Utils'
+import { MessageType } from './../../../../test/TestIpcMessage'
+import { BackupsManagerInterface } from './../Backups/BackupsManagerInterface'
+import { SpellcheckerManager } from './../SpellcheckerManager'
 import { MenuManagerInterface } from './MenuManagerInterface'
 
 export const enum MenuId {
@@ -238,8 +238,9 @@ const Urls = {
   Website: 'https://standardnotes.com',
   GitHub: 'https://github.com/standardnotes',
   Slack: 'https://standardnotes.com/slack',
+  Discord: 'https://standardnotes.com/discord',
   Twitter: 'https://twitter.com/StandardNotes',
-  GitHubReleases: 'https://github.com/standardnotes/desktop/releases',
+  GitHubReleases: 'https://github.com/standardnotes/app/releases',
 }
 
 function macAppMenu(appName: string): MenuItemConstructorOptions {
@@ -594,6 +595,12 @@ function helpMenu(window: Electron.BrowserWindow, shell: Electron.Shell) {
         label: str().gitHub,
         click() {
           void shell.openExternal(Urls.GitHub)
+        },
+      },
+      {
+        label: str().discord,
+        click() {
+          void shell.openExternal(Urls.Discord)
         },
       },
       {
